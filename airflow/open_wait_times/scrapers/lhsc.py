@@ -1,11 +1,13 @@
-import re
 import hashlib
+import re
+
 import pandas as pd
-from .base import BaseScraper
-from pendulum import parse
-from httpx import get
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from httpx import get
+from pendulum import parse
+
+from .base import BaseScraper
 
 
 class LHSC(BaseScraper):
