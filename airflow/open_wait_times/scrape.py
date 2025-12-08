@@ -45,7 +45,7 @@ for hospital in registry.hospitals:
                 return data
 
             @task.short_circuit
-            def skip_downstream(skip_downstream_flag: bool) -> bool:
+            def webpage_changed(skip_downstream_flag: bool) -> bool:
                 return not skip_downstream_flag
 
             @task
@@ -59,7 +59,7 @@ for hospital in registry.hospitals:
 
             raw_data = scrape()
             parsed_data = parse(raw_data)
-            skip_downstream(raw_data["skip_downstream"]) >> parsed_data >> load_data(parsed_data)
+            webpage_changed(raw_data["skip_downstream"]) >> parsed_data >> load_data(parsed_data)
 
         return extract_data()
 
