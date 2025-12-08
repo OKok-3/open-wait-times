@@ -8,7 +8,6 @@ dependencies = [
     "apache-airflow-providers-postgres>=6.4.0",
     "httpx>=0.28.1",
     "pandas>=2.3.3",
-    "polars>=1.34.0",
     "ruff>=0.14.0",
 ]
 
