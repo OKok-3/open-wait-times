@@ -125,12 +125,24 @@ class LHSC(BaseScraper):
         # We won't do None/Null checks and will rely on pipeline failing to catch this
         hospital_id = self._id
         fetch_log_id = data["fetch_log_id"]
-        update_ts = parse(data["update_ts"], strict=False, tz="America/Toronto")
+        update_ts = parse(data["update_ts"], strict=False, tz=self.timezone)
 
         wait_duration = pd.to_timedelta(data["wait_duration"].lower().strip())
         patient_arrival_time = update_ts.subtract(minutes=int(wait_duration.total_seconds() / 60))
         patient_departure_time = update_ts
         extra_info = None
+
+        last_update_ts = pg.get_first(
+            sql="SELECT update_ts FROM owt.er_wait_times WHERE hospital_id = %s ORDER BY update_ts DESC LIMIT 1",
+            parameters=[hospital_id],
+        )
+        last_update_ts = parse(str(last_update_ts[0]), strict=False, tz=self.timezone)
+
+        if last_update_ts >= update_ts:
+            print(
+                f"Skipping {hospital_id} because update_ts ({update_ts}) is older than last_update_ts ({last_update_ts})"
+            )
+            return
 
         pg.run(
             """
