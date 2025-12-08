@@ -125,11 +125,11 @@ class LHSC(BaseScraper):
             sql="SELECT update_ts FROM owt.er_wait_times WHERE hospital_id = %s ORDER BY update_ts DESC LIMIT 1",
             parameters=[self._id],
         )[0]
-        last_update_ts = parse(str(last_update_ts), strict=False, tz=self.timezone)
+        last_update_ts = parse(str(last_update_ts), strict=False, tz="UTC").in_timezone(self.timezone)
 
         if last_update_ts >= update_ts:
             print(
-                f"Skipping loading data for hospital {self.name} because scraped data ({update_ts}) is older than the most recently updated data ({last_update_ts})"
+                f"Skipping loading data for hospital {self.name} because scraped data ({update_ts}) is not newer than the most recently updated data ({last_update_ts})"
             )
             data["skip_downstream"] = True
 
