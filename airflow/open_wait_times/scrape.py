@@ -62,12 +62,13 @@ for hospital in registry.hospitals:
                 scraper.load_data(data)
 
             raw_data = scrape()
+            wc = webpage_changed(raw_data["skip_downstream"])
             parsed_data = parse(raw_data)
-            (
-                webpage_changed(raw_data["skip_downstream"])
-                >> new_data_available(parsed_data["skip_downstream"])
-                >> load_data(parsed_data)
-            )
+            nda = new_data_available(parsed_data["skip_downstream"])
+            load = load_data(parsed_data)
+
+            wc >> parsed_data
+            nda >> load
 
         return extract_data()
 
