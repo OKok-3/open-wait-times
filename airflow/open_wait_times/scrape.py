@@ -53,13 +53,21 @@ for hospital in registry.hospitals:
                 data = scraper.parse(data)
                 return data
 
+            @task.short_circuit
+            def new_data_available(skip_downstream_flag: bool) -> bool:
+                return not skip_downstream_flag
+
             @task
             def load_data(data: dict[str, any]) -> None:
                 scraper.load_data(data)
 
             raw_data = scrape()
             parsed_data = parse(raw_data)
-            webpage_changed(raw_data["skip_downstream"]) >> parsed_data >> load_data(parsed_data)
+            (
+                webpage_changed(raw_data["skip_downstream"])
+                >> new_data_available(parsed_data["skip_downstream"])
+                >> load_data(parsed_data)
+            )
 
         return extract_data()
 

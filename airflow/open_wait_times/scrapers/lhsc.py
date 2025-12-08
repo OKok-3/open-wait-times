@@ -117,6 +117,22 @@ class LHSC(BaseScraper):
         data["wait_duration"] = wait_time_match.group(1).strip() if wait_time_match else None
         data["update_ts"] = time_updated_match.group(1).strip() if time_updated_match else None
 
+        # Check if the scraped data is newer than the most recently updated data
+        pg = PostgresHook(postgres_conn_id="owt-pg")
+        update_ts = parse(data["update_ts"], strict=False, tz=self.timezone)
+
+        last_update_ts = pg.get_first(
+            sql="SELECT update_ts FROM owt.er_wait_times WHERE hospital_id = %s ORDER BY update_ts DESC LIMIT 1",
+            parameters=[self._id],
+        )[0]
+        last_update_ts = parse(str(last_update_ts), strict=False, tz=self.timezone)
+
+        if last_update_ts >= update_ts:
+            print(
+                f"Skipping loading data for hospital {self.name} because scraped data ({update_ts}) is older than the most recently updated data ({last_update_ts})"
+            )
+            data["skip_downstream"] = True
+
         return data
 
     def load_data(self, data: dict[str, any]) -> None:
@@ -131,18 +147,6 @@ class LHSC(BaseScraper):
         patient_arrival_time = update_ts.subtract(minutes=int(wait_duration.total_seconds() / 60))
         patient_departure_time = update_ts
         extra_info = None
-
-        last_update_ts = pg.get_first(
-            sql="SELECT update_ts FROM owt.er_wait_times WHERE hospital_id = %s ORDER BY update_ts DESC LIMIT 1",
-            parameters=[hospital_id],
-        )
-        last_update_ts = parse(str(last_update_ts[0]), strict=False, tz=self.timezone)
-
-        if last_update_ts >= update_ts:
-            print(
-                f"Skipping {hospital_id} because update_ts ({update_ts}) is older than last_update_ts ({last_update_ts})"
-            )
-            return
 
         pg.run(
             """
