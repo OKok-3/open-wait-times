@@ -5,7 +5,7 @@ import pandas as pd
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from httpx import get
-from pendulum import parse
+from pendulum import now, parse
 
 from .base import BaseScraper
 
@@ -119,7 +119,10 @@ class LHSC(BaseScraper):
 
         # Check if the scraped data is newer than the most recently updated data
         pg = PostgresHook(postgres_conn_id="owt-pg")
-        update_ts = parse(data["update_ts"], strict=False, tz=self.timezone)
+
+        update_time = parse(data["update_ts"], strict=False).time()
+        anchor_date = now(tz=self.timezone)
+        update_ts = anchor_date.at(hour=update_time.hour, minute=update_time.minute, second=update_time.second)
 
         last_update_ts = pg.get_first(
             sql="SELECT update_ts FROM owt.er_wait_times WHERE hospital_id = %s ORDER BY update_ts DESC LIMIT 1",
@@ -141,7 +144,10 @@ class LHSC(BaseScraper):
         # We won't do None/Null checks and will rely on pipeline failing to catch this
         hospital_id = self._id
         fetch_log_id = data["fetch_log_id"]
-        update_ts = parse(data["update_ts"], strict=False, tz=self.timezone)
+
+        update_time = parse(data["update_ts"], strict=False).time()
+        anchor_date = now(tz=self.timezone)
+        update_ts = anchor_date.at(hour=update_time.hour, minute=update_time.minute, second=update_time.second)
 
         wait_duration = pd.to_timedelta(data["wait_duration"].lower().strip())
         patient_arrival_time = update_ts.subtract(minutes=int(wait_duration.total_seconds() / 60))
