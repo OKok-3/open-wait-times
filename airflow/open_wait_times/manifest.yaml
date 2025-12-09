@@ -2,6 +2,8 @@ hospitals:
   - id: "lhsc_uh_adult_er"
     name: "LHSC University Hospital"
     dept: "ER"
+    latitude: 43.01250509343393
+    longitude: -81.2748420755984
     address: "339 Windermere Road"
     county: "Middlesex"
     city: "London"
@@ -14,6 +16,8 @@ hospitals:
   - id: "lhsc_ch_pediatric_er"
     name: "LHSC Children's Hospital"
     dept: "ER"
+    latitude: 42.959858111965445
+    longitude: -81.22685919124194
     address: "800 Commissioners Rd E"
     county: "Middlesex"
     city: "London"
@@ -23,9 +27,11 @@ hospitals:
     scraper_module: "scrapers.lhsc"
     scraper_class: "LHSC"
     version: 1
-  - id: "lhsc_vh_adult_er"  
+  - id: "lhsc_vh_adult_er"
     name: "LHSC Victoria Hospital"
     dept: "ER"
+    latitude: 42.960054502767385
+    longitude: -81.2254330861544
     address: "800 Commissioners Rd E"
     county: "Middlesex"
     city: "London"

@@ -5,6 +5,8 @@ class BaseScraper(ABC):
     _id: str
     name: str
     dept: str
+    latitude: float
+    longitude: float
     address: str
     county: str
     city: str
@@ -19,6 +21,8 @@ class BaseScraper(ABC):
         self._id = metadata["id"]
         self.name = metadata["name"]
         self.dept = metadata["dept"]
+        self.latitude = metadata["latitude"]
+        self.longitude = metadata["longitude"]
         self.address = metadata["address"]
         self.county = metadata["county"]
         self.city = metadata["city"]
