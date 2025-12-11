@@ -2,6 +2,15 @@
 
 Open Wait Times is an ETL pipeline designed to scrape, parse, and archive emergency room wait times from hospitals in London, Ontario. I built this project to demonstrate a robust, scalable approach to collecting real-time data via [Apache Airflow](https://airflow.apache.org/) for historical analysis and visualization via [Apache Superset](https://superset.apache.org/).
 
+## Screenshots
+
+![Data Coverage](docs/screenshot_data_coverage.png)
+
+**Overview of LHSC ER Departments**
+
+![Overview](docs/screenshot_overview.png)
+![Distributions](docs/screenshot_distributions.png)
+
 ## Architecture
 
 The system follows a modular ETL pattern. The pipeline runs every 10 minutes, a frequency chosen to create a safety margin around the hospitals' 15-minute update cycle. If a fetch failed after 3 retries, either due to network issues or problems at the source, the system still has another opportunity to collect the data before the source updates again, preventing gaps in the timeline. Raw HTML is archived in S3-compatible storage ([Garage S3](https://git.deuxfleurs.fr/Deuxfleurs/garage)) to ensure data lineage, while the structured data is immediately available for analysis and visualization in Apache Superset.
